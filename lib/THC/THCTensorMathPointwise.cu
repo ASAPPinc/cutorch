@@ -19,7 +19,7 @@
   void THCudaTensor_##NAME(THCState* state, THCudaTensor* self_, THCudaTensor* src) { \
     THAssert(THCudaTensor_checkGPU(state, 2, self_, src));                \
     if (self_ == src) {                                                 \
-      if (!THCudaTensor_pointwiseApply1(state, self_, Tensor##NAME##Op())) { \
+      if (!THCudaTensor_pointwiseApply1(state, self_, Tensor##NAME##Op(), ReadWrite, true)) { \
         THArgCheck(false, 2, CUTORCH_DIM_WARNING); \
       }                                                                 \
     } else {                                                            \
@@ -68,7 +68,7 @@ struct TensorSigmoidOp {
 void THCudaTensor_sigmoid(THCState* state, THCudaTensor* self_, THCudaTensor* src) {
   THAssert(THCudaTensor_checkGPU(state, 2, self_, src));
   if (self_ == src) {
-    if (!THCudaTensor_pointwiseApply1(state, self_, TensorSigmoidOp())) {
+    if (!THCudaTensor_pointwiseApply1(state, self_, TensorSigmoidOp(), ReadWrite, true)) {
       THArgCheck(false, 2, CUTORCH_DIM_WARNING);
     }
   } else {
@@ -251,7 +251,7 @@ void THCudaTensor_cmaxValue(THCState *state, THCudaTensor *self, THCudaTensor *s
   THAssert(THCudaTensor_checkGPU(state, 2, self, src));
 
   if (self == src) {
-    if (!THCudaTensor_pointwiseApply1(state, self, TensorMaxValueOp(value))) {
+    if (!THCudaTensor_pointwiseApply1(state, self, TensorMaxValueOp(value), ReadWrite, true)) {
       THArgCheck(false, 2, CUTORCH_DIM_WARNING);
     }
   } else {
@@ -281,7 +281,7 @@ void THCudaTensor_cminValue(THCState *state, THCudaTensor *self, THCudaTensor *s
   THAssert(THCudaTensor_checkGPU(state, 2, self, src));
 
   if (self == src) {
-    if (!THCudaTensor_pointwiseApply1(state, self, TensorMinValueOp(value))) {
+    if (!THCudaTensor_pointwiseApply1(state, self, TensorMinValueOp(value), ReadWrite, true)) {
       THArgCheck(false, 2, CUTORCH_DIM_WARNING);
     }
   } else {
