@@ -524,7 +524,7 @@ void __THCudaCheck(cudaError_t err, const char *file, const int line)
   {
     static int alreadyFailed = 0;
     if(!alreadyFailed) {
-      printf("THCudaCheck FAIL file=%s line=%i error=%i\n", file, line, err);
+      fprintf(stderr, "THCudaCheck FAIL file=%s line=%i error=%i : %s\n", file, line, err, cudaGetErrorString(err));
       alreadyFailed = 1;
     }
     _THError(file, line, "cuda runtime error (%d) : %s", err,
