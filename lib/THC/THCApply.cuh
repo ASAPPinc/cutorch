@@ -120,7 +120,8 @@ template <typename Op>
 bool THCudaTensor_pointwiseApply1(THCState* state,
                                   THCudaTensor* a,
                                   const Op& op,
-                                  TensorArgType aType = ReadWrite) {
+                                  TensorArgType aType = ReadWrite,
+                                  bool transposeInvariant = false) {
   long totalElements = THCudaTensor_nElement(state, a);
 
   if (THCudaTensor_nDimension(state, a) > MAX_CUTORCH_DIMS) {
@@ -198,6 +199,25 @@ bool THCudaTensor_pointwiseApply1(THCState* state,
   if (THC_canUse32BitIndexMath(state, a)) {
     TensorInfo<unsigned int> aInfo(state, a);
     aInfo.collapseDims();
+
+    // if the final dimension is not the one with stride 1, swap with the one that is,
+    // if such a dimension exists
+    if(transposeInvariant) {
+      int numDims = aInfo.dims;
+      if(aInfo.strides[numDims - 1] != 1) {
+        for(int d = 0; d < numDims; d++) {
+          if(aInfo.strides[d] == 1) {
+            int oldStride = aInfo.strides[d];
+            int oldSize = aInfo.sizes[d];
+            aInfo.strides[d] = aInfo.strides[numDims - 1];
+            aInfo.sizes[d] = aInfo.sizes[numDims - 1];
+            aInfo.strides[numDims - 1] = oldStride;
+            aInfo.sizes[numDims - 1] = oldSize;
+            break;
+          }
+        }
+      }
+    }
 
     HANDLE_A_CASE(unsigned int, aInfo.dims);
   } else {
